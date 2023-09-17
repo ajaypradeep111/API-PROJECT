@@ -1,10 +1,14 @@
 const express = require("express");
 
+var bodyParser = require("body-parser");
+
 //database
 const database=require("./database");
 
 //initialise express
 const booky=express();
+
+booky.use(bodyParser.urlencoded({extended: true}));
 
 /*Route         /
 Description     get all the books
