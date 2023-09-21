@@ -31,6 +31,12 @@ const publication = [
         name:"writex",
         books:["12345Book"]
 
+    },
+    {
+        id:2,
+        name:"writex2",
+        books:[]
+
     }
 ]
 

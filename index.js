@@ -9,6 +9,7 @@ const database=require("./database");
 const booky=express();
 
 booky.use(bodyParser.urlencoded({extended: true}));
+booky.use(bodyParser.json());
 
 /*Route         /
 Description     get all the books
@@ -110,6 +111,76 @@ methods         get
 
 booky.get("/publications", (req,res) => {
     return res.json({publications: database.publication});
+});
+
+/*Route         /book/new
+Description     add new books
+Access          public
+parameters      none
+methods         post
+*/
+
+booky.post("/book/new",(req,res) => {
+    const newBook = req.body;
+    database.books.push(newBook);
+    return res.json({updatedBook: database.books});
+});
+
+/*Route         /author/new
+Description     add new authors
+Access          public
+parameters      none
+methods         post
+*/
+
+booky.post("/author/new",(req,res) => {
+    const newAuthor = req.body;
+    database.author.push(newAuthor);
+    return res.json(databse.author);
+});
+
+/*Route         /publication/new
+Description     add new publications
+Access          public
+parameters      none
+methods         post
+*/
+
+booky.post("/publication/new",(req,res) => {
+    const newPublication = req.body;
+    database.author.push(newPublication);
+    return res.json(databse.publication);
+});
+
+/*Route         /publication/update/book
+Description     update /add new publications
+Access          public
+parameters      isbn
+methods         put
+*/
+
+booky.put("/publication/update/book/:isbn",(req,res) => {
+    //update the publication database
+    database.publication.forEach((pub) => {
+        if(pub.id === req.body.pubId) {
+            return pub.books.push(req.params.isbn);
+        }
+    });
+    //update the book databse
+    database.books.forEach((book) =>{
+        if(book.ISBN === req.params.isbn) {
+            book.publications = req.body.pubId;
+            return;
+        }
+    });
+
+    return res.json(
+        {
+            books: database.books,
+            publications: database.publication,
+            message: "Successfullu updated publications"
+        }
+    );
 });
 
 booky.listen(5111,() => {
