@@ -1,4 +1,6 @@
+require("dotenv").config();
 const express = require("express");
+const mongoose = require("mongoose");
 
 var bodyParser = require("body-parser");
 
@@ -10,6 +12,15 @@ const booky=express();
 
 booky.use(bodyParser.urlencoded({extended: true}));
 booky.use(bodyParser.json());
+
+mongoose.connect(process.env.MONGO_URL,
+{
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  useFindAndModify: false,
+  useCreateIndex: true
+}
+).then(() => console.log("Connection Established"));
 
 /*Route         /
 Description     get all the books
@@ -178,9 +189,59 @@ booky.put("/publication/update/book/:isbn",(req,res) => {
         {
             books: database.books,
             publications: database.publication,
-            message: "Successfullu updated publications"
+            message: "Successfully updated publications"
         }
     );
+});
+
+/*Route         /book/delete
+Description     Delete a book
+Access          public
+parameters      isbn
+methods         delete
+*/
+
+booky.delete("/book/delete/:isbn", (req,res) => {
+    const updatedBookDatabase = database.books.filter(
+        (book) => book.ISBN !== req.params.isbn
+    )
+    database.books = updatedBookDatabase;
+
+    return res.json({books: database.books});
+});
+
+/*Route         /book/delete
+Description     Delete a book
+Access          public
+parameters      isbn
+methods         delete
+*/
+
+booky.delete("/book/delete/author/:isbn/:authorId", (req,res) => {
+    database.books.forEach((book)=>{
+        if(book.ISBN === req.params.isbn) {
+            const newAuthorList = book.author.filter(
+                (eachAuthor) => eachAuthor !== parseInt(req.params.authorId)
+            );
+            book.author = newAuthorList;
+            return;
+        }
+    });
+    database.author.forEach((eachAuthor) => {
+        if(eachAuthor.id === parseInt(req.params.authorId)) {
+            const newBookList = eachAuthor.books.filter(
+                (book) => book !== req.params.isbn
+            );
+            eachAuthor.books = newBookList;
+            return;
+        }
+    });
+    return res.json({
+        book: database.books,
+        author: database.author,
+        message: "Author was deleted!!!"
+    });
+
 });
 
 booky.listen(5111,() => {
